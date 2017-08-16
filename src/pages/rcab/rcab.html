@@ -1,0 +1,59 @@
+<!--
+  Generated template for the RcabPage page.
+
+  See http://ionicframework.com/docs/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+<ion-header color="primary">
+
+  <ion-navbar>
+    <ion-title>Request A Cab</ion-title>
+  </ion-navbar>
+
+</ion-header>
+
+
+<ion-content padding>
+  <!--<ion-searchbar
+  [(ngModel)]="autocomplete.query"
+  [showCancelButton]="true"
+  (ionInput)="updateSearch()"
+  (ionCancel)="dismiss()"
+  placeholder="Start typing and select ...">
+  </ion-searchbar>
+  <ion-list>
+  <ion-item *ngFor="let item of autocompleteItems"
+  (click)="chooseItem(item)">
+  {{ item.description }}
+  </ion-item>
+  </ion-list>-->
+
+  <ion-list>
+    <ion-item>
+      <ion-label floating>Where is your pick up location?</ion-label>
+      <ion-input id="xfrom" type="text"></ion-input>
+      <button block (click)="getCurrentLocation()">Get Current Location</button>
+    </ion-item>
+    <ion-item>
+      <ion-label floating>Where are you heading to?</ion-label>
+      <ion-input id="xto" type="text" ></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-buttons end>
+        <button block (click)="getQuote()">Get Quote</button>
+      </ion-buttons>
+    </ion-item>
+    <ion-item>
+      <div>
+        {{quote}}
+      </div>
+    </ion-item>
+    <ion-item>
+      <ion-buttons>
+        <button (click)="closemodal()">Cancel</button>
+        <button (click)="placeorder()">Place Order</button>
+      </ion-buttons>
+    </ion-item>
+  </ion-list>
+  <!--<button ion-button (click)="closemodal()">Close</button>-->
+</ion-content>
