@@ -132,6 +132,15 @@ export class RcabPage {
 
   getprice(){
     console.log(this.gtidata);
+    /**
+     * var vTypex = $("#sltVehicleType").val();
+     * var dist = Math.ceil($("#vType").val()/1000);
+     * var uprice = data[vTypex];
+     * var price = dist*uprice;
+     * //console.log(price);
+     * document.getElementById("narate").value += ", is "+dist+"Km, for "+vTypex+" Drive. @ NGN "+uprice.toLocaleString('en')+" per kilometer, Cost NGN "+price.toLocaleString('en');
+     * var dmsg = $("#narate").val();
+     */
   }
 
   placeorder(){

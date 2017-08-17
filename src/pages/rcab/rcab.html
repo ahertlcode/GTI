@@ -24,6 +24,18 @@
     <ion-input type="hidden" id="dummy"></ion-input>
 
     <ion-item>
+      <ion-label floating>Select Cab Category(Type)</ion-label>
+        <ion-select id="sltVehicleType" name="sltVehicleType" [(ngModel)]="VehicleType">
+          <ion-option value="-1">-->Select Cab Type<--</ion-option>
+          <ion-option value="diamond">Diamond Drive</ion-option>
+          <ion-option value="sapphire">Sapphire Drive</ion-option>
+          <ion-option value="platinum">Platinum Drive</ion-option>
+          <ion-option value="golden">Golden Drive</ion-option>
+          <ion-option value="bronze">Bronze Drive</ion-option>
+        </ion-select>
+    </ion-item>
+
+    <ion-item>
       <ion-label floating>Where is your pick up location?</ion-label>
       <ion-input (ionChange)="getLatLng('xfrom')" id="xfrom" type="text"></ion-input>
     </ion-item>
