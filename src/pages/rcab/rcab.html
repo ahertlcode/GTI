@@ -14,33 +14,31 @@
 
 
 <ion-content padding>
-  <!--<ion-searchbar
-  [(ngModel)]="autocomplete.query"
-  [showCancelButton]="true"
-  (ionInput)="updateSearch()"
-  (ionCancel)="dismiss()"
-  placeholder="Start typing and select ...">
-  </ion-searchbar>
   <ion-list>
-  <ion-item *ngFor="let item of autocompleteItems"
-  (click)="chooseItem(item)">
-  {{ item.description }}
-  </ion-item>
-  </ion-list>-->
+    <ion-input type="hidden" id="xfromLat"></ion-input>
+    <ion-input type="hidden" id="xfromLng"></ion-input>
+    <ion-input type="hidden" id="xtoLat"></ion-input>
+    <ion-input type="hidden" id="xtoLng"></ion-input>
+    <ion-input type="hidden" id="narate"></ion-input>
+    <ion-input type="hidden" id="vType"></ion-input>
+    <ion-input type="hidden" id="dummy"></ion-input>
 
-  <ion-list>
     <ion-item>
       <ion-label floating>Where is your pick up location?</ion-label>
-      <ion-input id="xfrom" type="text"></ion-input>
-      <button block (click)="getCurrentLocation()">Get Current Location</button>
-    </ion-item>
-    <ion-item>
-      <ion-label floating>Where are you heading to?</ion-label>
-      <ion-input id="xto" type="text" ></ion-input>
+      <ion-input (ionChange)="getLatLng('xfrom')" id="xfrom" type="text"></ion-input>
     </ion-item>
     <ion-item>
       <ion-buttons end>
-        <button block (click)="getQuote()">Get Quote</button>
+        <button (click)="getCurrentLocation()">Get Current Location</button>
+      </ion-buttons>
+    </ion-item>
+    <ion-item>
+      <ion-label floating>Where are you heading to?</ion-label>
+      <ion-input (ionChange)="getLatLng('xto')" id="xto" type="text" ></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-buttons end>
+        <button (click)="getQuote()">Get Quote</button>
       </ion-buttons>
     </ion-item>
     <ion-item>
@@ -55,5 +53,4 @@
       </ion-buttons>
     </ion-item>
   </ion-list>
-  <!--<button ion-button (click)="closemodal()">Close</button>-->
 </ion-content>

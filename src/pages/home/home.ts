@@ -18,44 +18,12 @@ export class HomePage {
   autocomplete: any;
   acService:any;
   placesService: any;
+  infoWindow: any;
 
 
   constructor(public navCtrl: NavController, public geolocation: Geolocation, private xmodal: ModalController) {
 
   }
-
-  /**
-
-  ngOnInit() {
-      this.acService = new google.maps.places.AutocompleteService();
-      this.autocompleteItems = [];
-      this.autocomplete = {
-      query: ''
-    };
-  }
-
-updateSearch(){
-console.log('modal > updateSearch');
-if (this.autocomplete.query == '') {
-this.autocompleteItems = [];
-return;
-}
-let self = this;
-let config = {
-//types:  ['geocode'], // other types available in the API: 'establishment', 'regions', and 'cities'
-input: this.autocomplete.query,
-componentRestrictions: {  }
-}
-this.acService.getPlacePredictions(config, function (predictions, status) {
-console.log('modal > getPlacePredictions > status > ', status);
-self.autocompleteItems = [];
-predictions.forEach(function (prediction) {
-self.autocompleteItems.push(prediction);
-});
-});
-}
-*/
-
 
   openrcabmodal(){
     const modalr = this.xmodal.create("RcabPage");
@@ -79,6 +47,43 @@ self.autocompleteItems.push(prediction);
   ionViewDidLoad(){
     this.loadMap();
   }
+
+/**
+  initMap(){
+    this.map = new google.maps.Map(this.mapElement.nativeElement,{
+      center: {lat: 6.5244, lng: 3.3792},
+      zoom: 16,
+      mapTypeId: google.maps.MapTypeId.ROADMAP
+    });
+
+    this.infoWindow = new google.maps.InfoWindow();
+
+    if(navigator.geolocation){
+      navigator.geolocation.getCurrentPosition(function (position) {
+        var pos = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude
+        };
+        this.infoWindow.setPosition(pos);
+        this.infoWindow.setContent('This is your Location');
+        this.infoWindow.open(this.map);
+        this.map.setCenter(pos);
+      },function () {
+        this.handleLocationError(true,this.infoWindow, this.map.getCenter());
+      });
+    }else{
+      this.handleLocationError(false,this.infoWindow, this.map.getCenter());
+    }
+  }
+
+  handleLocationError(browserHasGeolocation: boolean,infoWin: any, pos: any){
+    infoWin.setPosition(pos);
+    infoWin.setContent(browserHasGeolocation ? 'Error: The Geolocation service failed.':
+      'Error: Your browser doesn\'t support geolocation.'
+    );
+    infoWin.open(this.map);
+  }
+*/
 
   loadMap(){
 
