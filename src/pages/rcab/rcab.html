@@ -22,11 +22,11 @@
     <ion-input type="hidden" id="narate"></ion-input>
     <ion-input type="hidden" id="vType"></ion-input>
     <ion-input type="hidden" id="dummy"></ion-input>
+    <ion-input type="hidden" id="isltVehicleType"></ion-input>
 
     <ion-item>
       <ion-label floating>Select Cab Category(Type)</ion-label>
-        <ion-select id="sltVehicleType" name="sltVehicleType" [(ngModel)]="VehicleType">
-          <ion-option value="-1">-->Select Cab Type<--</ion-option>
+        <ion-select #sltVehicleType (ionChange)="doVehicleSelect(VehicleType)" [(ngModel)]="VehicleType">
           <ion-option value="diamond">Diamond Drive</ion-option>
           <ion-option value="sapphire">Sapphire Drive</ion-option>
           <ion-option value="platinum">Platinum Drive</ion-option>
@@ -34,10 +34,9 @@
           <ion-option value="bronze">Bronze Drive</ion-option>
         </ion-select>
     </ion-item>
-
     <ion-item>
       <ion-label floating>Where is your pick up location?</ion-label>
-      <ion-input (ionChange)="getLatLng('xfrom')" id="xfrom" type="text"></ion-input>
+      <ion-input id="xfrom" type="text"></ion-input>
     </ion-item>
     <ion-item>
       <ion-buttons end>
@@ -46,16 +45,20 @@
     </ion-item>
     <ion-item>
       <ion-label floating>Where are you heading to?</ion-label>
-      <ion-input (ionChange)="getLatLng('xto')" id="xto" type="text" ></ion-input>
+      <ion-input (ionFocus)="getLatLng('xfrom')" id="xto" type="text" ></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label floating>Any additional information?</ion-label>
+      <ion-textarea #xinfo id="xinfo" name="xinfo" (ionFocus)="getLatLng('xto')"></ion-textarea>
     </ion-item>
     <ion-item>
       <ion-buttons end>
-        <button (click)="getQuote()">Get Quote</button>
+        <button  (click)="getQuote()">Get Quote</button>
       </ion-buttons>
     </ion-item>
     <ion-item>
-      <div>
-        {{quote}}
+      <div #quote id="quote">
+        Your Quote will display here.
       </div>
     </ion-item>
     <ion-item>

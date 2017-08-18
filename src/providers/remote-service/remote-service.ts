@@ -21,7 +21,7 @@ export class RemoteServiceProvider {
 
   getGtiData(){
     return this.http.get(this.getApiUrl)
-      .do((res : Response) => console.log(res.json))
+      .do((res : Response)=>{})
       .map((res : Response) => res.json());
   }
 }

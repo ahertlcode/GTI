@@ -1,5 +1,5 @@
-import { Component, ViewChild, ElementRef } from '@angular/core';
-import { NavController, ModalController, ModalOptions } from 'ionic-angular';
+import { Component, ViewChild, ElementRef, Injectable } from '@angular/core';
+import { NavController, ModalController, ModalOptions, Events } from 'ionic-angular';
 import { Geolocation } from '@ionic-native/geolocation';
 import { googlemaps } from 'googlemaps';
 
@@ -10,8 +10,8 @@ declare var google;
   selector: 'home-page',
   templateUrl: 'home.html'
 })
+@Injectable()
 export class HomePage {
-
   @ViewChild('map') mapElement: ElementRef;
   map: any;
   autocompleteItems: any;
@@ -21,7 +21,7 @@ export class HomePage {
   infoWindow: any;
 
 
-  constructor(public navCtrl: NavController, public geolocation: Geolocation, private xmodal: ModalController) {
+  constructor(public navCtrl: NavController, public events: Events, public geolocation: Geolocation, private xmodal: ModalController) {
 
   }
 
@@ -47,43 +47,6 @@ export class HomePage {
   ionViewDidLoad(){
     this.loadMap();
   }
-
-/**
-  initMap(){
-    this.map = new google.maps.Map(this.mapElement.nativeElement,{
-      center: {lat: 6.5244, lng: 3.3792},
-      zoom: 16,
-      mapTypeId: google.maps.MapTypeId.ROADMAP
-    });
-
-    this.infoWindow = new google.maps.InfoWindow();
-
-    if(navigator.geolocation){
-      navigator.geolocation.getCurrentPosition(function (position) {
-        var pos = {
-          lat: position.coords.latitude,
-          lng: position.coords.longitude
-        };
-        this.infoWindow.setPosition(pos);
-        this.infoWindow.setContent('This is your Location');
-        this.infoWindow.open(this.map);
-        this.map.setCenter(pos);
-      },function () {
-        this.handleLocationError(true,this.infoWindow, this.map.getCenter());
-      });
-    }else{
-      this.handleLocationError(false,this.infoWindow, this.map.getCenter());
-    }
-  }
-
-  handleLocationError(browserHasGeolocation: boolean,infoWin: any, pos: any){
-    infoWin.setPosition(pos);
-    infoWin.setContent(browserHasGeolocation ? 'Error: The Geolocation service failed.':
-      'Error: Your browser doesn\'t support geolocation.'
-    );
-    infoWin.open(this.map);
-  }
-*/
 
   loadMap(){
 
@@ -126,5 +89,37 @@ export class HomePage {
     google.maps.event.addListener(marker, 'click', () => {
       infoWindow.open(this.map, marker);
     });
+  }
+
+  calculateroute(from, to){
+    //Center initialized as your current location
+    var mapopt = {
+      zoom: 10,
+      center: { lat: 6.3244, lng: 3.5467 },
+      mapTypeId: google.maps.MapTypeId.ROADMAP
+    };
+
+    //Draw the map
+    var mapObj = new google.maps.map( this.mapElement.nativeElement,mapopt);
+
+    var directionsService = new google.maps.DirectionsService();
+    var directionsRequest = {
+      origin: from,
+      destination: to,
+      travelMode: google.maps.DirectionsTravelMode.DRIVING,
+      unitSystem: google.maps.UnitSystem.METRIC
+    };
+    directionsService.route(
+      directionsRequest,
+      function(response,status){
+        if(status == google.maps.DirectionsStatus.OK){
+          new google.maps.DirectionsRenderer({
+            map: mapObj,
+            directions: response
+          });
+        }
+        else alert("Unable to retrieve your route");
+      }
+    )
   }
 }

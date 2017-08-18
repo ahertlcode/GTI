@@ -1,13 +1,15 @@
-import { Component } from '@angular/core';
-import { IonicPage, NavController, NavParams, ViewController } from 'ionic-angular';
+import { Component, ViewChild, ElementRef } from '@angular/core';
+import { IonicPage, NavController, NavParams, ViewController, Events } from 'ionic-angular';
 import { Geolocation } from '@ionic-native/geolocation';
 
 import { googlemaps } from 'googlemaps';
 
 import {RemoteServiceProvider} from "../../providers/remote-service/remote-service";
+import { HomePage } from "../home/home";
 
 
 declare var google;
+
 
 /**
  * Generated class for the RcabPage page.
@@ -22,9 +24,13 @@ declare var google;
   templateUrl: 'rcab.html',
 })
 export class RcabPage {
+  @ViewChild('quote') divElement: ElementRef;
   gtidata = [];
+  address: string;
+  price: any;
+  xhome: HomePage;
 
-  constructor(public navCtrl: NavController, private remoteService: RemoteServiceProvider, public geolocation: Geolocation, public navParams: NavParams, private view: ViewController) {
+  constructor(public navCtrl: NavController, public events: Events, private remoteService: RemoteServiceProvider, public geolocation: Geolocation, public navParams: NavParams, private view: ViewController) {
     this.getData();
   }
 
@@ -36,14 +42,18 @@ export class RcabPage {
 
   ionViewDidLoad() {
     google.maps.event.addDomListener(window,'load',this.fetchlocation());
+    var napt = <HTMLInputElement>document.getElementById('narate').getElementsByTagName('input')[0];
+    napt.value = null;
   }
 
 
   fetchlocation(){
-    var from = (<HTMLInputElement>document.getElementById('xfrom').getElementsByTagName('input')[0]);
+    var from: any = (<HTMLInputElement>document.getElementById('xfrom').getElementsByTagName('input')[0]);
     var to: any = (<HTMLInputElement>document.getElementById('xto').getElementsByTagName('input')[0]);
     var autocomplete1 = new google.maps.places.Autocomplete(from);
+    //autocomplete1.addListener('place_changed',this.getLatLng('xfrom'));
     var autocomplete2 = new google.maps.places.Autocomplete(to);
+    //autocomplete2.addListener('place_changed',this.getLatLng('xto'));
   }
 
   getCurrentLocation(){
@@ -68,6 +78,8 @@ export class RcabPage {
   }
 
   getLatLngByAddr(){
+    var napt = <HTMLInputElement>document.getElementById('narate').getElementsByTagName('input')[0];
+    napt.value = null;
     var ad = <HTMLInputElement>document.getElementById('dummy').getElementsByTagName('input')[0];
     var addr = ad.value;
     var geocoder = new google.maps.Geocoder();
@@ -81,18 +93,24 @@ export class RcabPage {
         alert("Please click 'Get Current Location' again.");
       }
     });
+    var napt = <HTMLInputElement>document.getElementById('narate').getElementsByTagName('input')[0];
+    napt.value += addr+",";
   }
 
   getLatLng(tid){
+    if(tid == 'xfrom'){
+      var napt = <HTMLInputElement>document.getElementById('narate').getElementsByTagName('input')[0];
+      napt.value = null;
+    }
     var adpt = <HTMLInputElement>document.getElementById(tid).getElementsByTagName('input')[0];
-    var address = adpt.value;
+    this.address = adpt.value;
     var napt = <HTMLInputElement>document.getElementById('narate').getElementsByTagName('input')[0];
-    napt.value += address+",";
+    napt.value += this.address+",";
 
 
     //create async request to get LatLng for address
     var geocoder = new google.maps.Geocoder();
-    geocoder.geocode({'address': address},function(results, status){
+    geocoder.geocode({'address': this.address},function(results, status){
       if(status == google.maps.GeocoderStatus.OK){
         var lati = <HTMLInputElement>document.getElementById(tid+'Lat').getElementsByTagName('input')[0];
         lati.value = results[0].geometry.location.lat();
@@ -114,8 +132,6 @@ export class RcabPage {
     var lng2 = <HTMLInputElement>document.getElementById("xtoLng").getElementsByTagName('input')[0];
     var longitude2 = lng2.value;
 
-    //console.log(latitude1+","+longitude1+","+latitude2+","+longitude2);
-
     //Get the distance btw the two addresses geometry is used an was require through googlemap api.
     var distance = google.maps.geometry.spherical.computeDistanceBetween(
       new google.maps.LatLng(latitude1,longitude1),
@@ -131,21 +147,42 @@ export class RcabPage {
   }
 
   getprice(){
-    console.log(this.gtidata);
-    /**
-     * var vTypex = $("#sltVehicleType").val();
-     * var dist = Math.ceil($("#vType").val()/1000);
-     * var uprice = data[vTypex];
-     * var price = dist*uprice;
-     * //console.log(price);
-     * document.getElementById("narate").value += ", is "+dist+"Km, for "+vTypex+" Drive. @ NGN "+uprice.toLocaleString('en')+" per kilometer, Cost NGN "+price.toLocaleString('en');
-     * var dmsg = $("#narate").val();
-     */
+    var Typ =<HTMLInputElement>document.getElementById("isltVehicleType").getElementsByTagName('input')[0];
+    var vTypex = Typ.value;
+    var distVal = <HTMLInputElement>document.getElementById("vType").getElementsByTagName('input')[0];
+    var gdist = parseFloat(distVal.value);
+    var dist = Math.ceil(gdist/1000);
+    var uprice = this.gtidata[vTypex];
+    this.price = dist*uprice;
+    var narator = <HTMLInputElement>document.getElementById("narate").getElementsByTagName('input')[0];
+    narator.value += ", \nis "+dist+"Km, for "+vTypex+" Drive. @ NGN "+uprice.toLocaleString('en')+" per kilometer,\nCost NGN "+this.price.toLocaleString('en');
+    var quote = narator.value;
+    this.divElement.nativeElement.innerText = " ";
+    this.showQuote(quote);
   }
 
-  placeorder(){
-    return true;
+  showQuote(cost){
+    this.divElement.nativeElement.innerText = cost;
   }
+
+  doVehicleSelect(selectedVal){
+    var tve = <HTMLInputElement>document.getElementById("isltVehicleType").getElementsByTagName('input')[0];
+    tve.value = selectedVal;
+  }
+
+
+  placeorder(){
+    if(confirm("Are you sure? The sum of NGN "+this.price+" will be charged to your debit card.") == true){
+      alert("You have been charged.");
+      var ifrom = <HTMLInputElement>document.getElementById('xfrom').getElementsByTagName('input')[0];
+      var from = ifrom.value;
+      var ito = <HTMLInputElement>document.getElementById('xto').getElementsByTagName('input')[0];
+      var to = ito.value;
+      this.closemodal();
+    }
+    this.xhome.calculateroute(from,to);
+  }
+
 
   closemodal(){
     this.view.dismiss();
