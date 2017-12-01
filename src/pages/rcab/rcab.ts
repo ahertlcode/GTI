@@ -1,11 +1,10 @@
 import { Component, ViewChild, ElementRef } from '@angular/core';
-import { IonicPage, NavController, NavParams, ViewController, Events } from 'ionic-angular';
+import { IonicPage, NavController, NavParams, ViewController, Events, AlertController, LoadingController } from 'ionic-angular';
 import { Geolocation } from '@ionic-native/geolocation';
 
 import { googlemaps } from 'googlemaps';
 
 import {RemoteServiceProvider} from "../../providers/remote-service/remote-service";
-import { HomePage } from "../home/home";
 
 
 declare var google;
@@ -28,10 +27,22 @@ export class RcabPage {
   gtidata = [];
   address: string;
   price: any;
-  xhome: HomePage;
+  imode: boolean = false;
+  iconfirm: boolean = false;
 
-  constructor(public navCtrl: NavController, public events: Events, private remoteService: RemoteServiceProvider, public geolocation: Geolocation, public navParams: NavParams, private view: ViewController) {
+  constructor(public navCtrl: NavController, private loader: LoadingController, public alertCtrl: AlertController, public events: Events, private remoteService: RemoteServiceProvider, public geolocation: Geolocation, public navParams: NavParams, private view: ViewController) {
     this.getData();
+  }
+
+  showloader(delay = null){
+    if(delay == null){
+      delay = 5000;
+    }
+    let waiti = this.loader.create({
+      content: "Please wait ...",
+      duration: delay
+    });
+    waiti.present();
   }
 
   getData(){
@@ -42,8 +53,6 @@ export class RcabPage {
 
   ionViewDidLoad() {
     google.maps.event.addDomListener(window,'load',this.fetchlocation());
-    var napt = <HTMLInputElement>document.getElementById('narate').getElementsByTagName('input')[0];
-    napt.value = null;
   }
 
 
@@ -57,6 +66,7 @@ export class RcabPage {
   }
 
   getCurrentLocation(){
+    this.showloader();
     if(navigator.geolocation){
       navigator.geolocation.getCurrentPosition(function(position) {
         var geocoder = new google.maps.Geocoder();
@@ -65,64 +75,100 @@ export class RcabPage {
         },function(results,status){
           if(status == google.maps.GeocoderStatus.OK){
             var inp = <HTMLInputElement>document.getElementById('xfrom').getElementsByTagName('input')[0];
-            inp.value = results[0].formatted_address;
-            var inp1 = <HTMLInputElement>document.getElementById('dummy').getElementsByTagName('input')[0];
-            inp1.value = results[0].formatted_address;
+            var myadr = results[0].formatted_address;
+            inp.value = myadr;
           }else{
-            alert("Unable to get Your Location Address.");
+            this.showAlert("Location Error!","Unable to get your current Location Address");
           }
         });
       });
+    }else{
+      this.showAlert("Geolocation Error!","The location service on your device appear off. Please turn it on.");
     }
-    this.getLatLngByAddr();
   }
 
-  getLatLngByAddr(){
-    var napt = <HTMLInputElement>document.getElementById('narate').getElementsByTagName('input')[0];
-    napt.value = null;
-    var ad = <HTMLInputElement>document.getElementById('dummy').getElementsByTagName('input')[0];
-    var addr = ad.value;
-    var geocoder = new google.maps.Geocoder();
-    geocoder.geocode({'address': addr},function(results, status){
-      if(status == google.maps.GeocoderStatus.OK){
-        var lati = <HTMLInputElement>document.getElementById('xfromLat').getElementsByTagName('input')[0];
-        lati.value = results[0].geometry.location.lat();
-        var long = <HTMLInputElement>document.getElementById('xfromLng').getElementsByTagName('input')[0];
-        long.value = results[0].geometry.location.lng();
-      }else{
-        alert("Please click 'Get Current Location' again.");
-      }
+  showAlert(titlex,messagex){
+    let alerti = this.alertCtrl.create({
+      title: titlex,
+      subTitle: messagex,
+      buttons: ['OK']
     });
-    var napt = <HTMLInputElement>document.getElementById('narate').getElementsByTagName('input')[0];
-    napt.value += addr+",";
+    alerti.present();
+  }
+
+  showConfirm(titlex,msgx):boolean {
+    let confirm = this.alertCtrl.create({
+      title: titlex,
+      message: msgx,
+      buttons: [
+        {
+          text: 'Disagree',
+          role: 'cancel',
+          handler: () => {
+            //reject(false);
+            this.iconfirm = false;
+          }
+        },
+        {
+          text: 'Agree',
+          handler: () => {
+            this.iconfirm = true;
+            //resolve(true);
+          }
+        }
+      ]
+    });
+    /**
+     * alert.present().then(() => {
+      this.testRadioOpen = true;
+    });
+     */
+
+    confirm.present().then(()=>{
+      return this.iconfirm;
+    });
+    return this.iconfirm;
   }
 
   getLatLng(tid){
-    if(tid == 'xfrom'){
-      var napt = <HTMLInputElement>document.getElementById('narate').getElementsByTagName('input')[0];
-      napt.value = null;
-    }
     var adpt = <HTMLInputElement>document.getElementById(tid).getElementsByTagName('input')[0];
-    this.address = adpt.value;
+    var addrs = adpt.value;
+    this.address = addrs; //for debugging purpose.
     var napt = <HTMLInputElement>document.getElementById('narate').getElementsByTagName('input')[0];
-    napt.value += this.address+",";
-
+    if(tid == 'xfrom'){
+      napt.value = addrs+", To "
+    }else {
+      napt.value += addrs + ",\n";
+    }
 
     //create async request to get LatLng for address
     var geocoder = new google.maps.Geocoder();
-    geocoder.geocode({'address': this.address},function(results, status){
+    geocoder.geocode({'address': addrs},function(results, status){
       if(status == google.maps.GeocoderStatus.OK){
         var lati = <HTMLInputElement>document.getElementById(tid+'Lat').getElementsByTagName('input')[0];
-        lati.value = results[0].geometry.location.lat();
+        var latx = results[0].geometry.location.lat();
+        lati.value = latx;
         var long = <HTMLInputElement>document.getElementById(tid+'Lng').getElementsByTagName('input')[0];
-        long.value = results[0].geometry.location.lng();
+        var lngx = results[0].geometry.location.lng();
+        long.value = lngx;
       }else{
-        alert("Network Error: Ensure your data service is enabled.");
+        //alert("Network Error: Ensure your data service is enabled.");
+        this.showAlert("Network Error!","Please enable your data service and ensure to your provider data servcie is active.");
       }
     });
   }
 
   getQuote(){
+      this.showloader(1000);
+      this.divElement.nativeElement.innerText = null;
+      if(this.imode == false){
+        this.showAlert("Attention Please!","You must agree to GTI Logistics terms and conditions. ");
+      }else{
+        this.getDistance();
+      }
+  }
+
+  getDistance() {
     var lat1 = <HTMLInputElement>document.getElementById("xfromLat").getElementsByTagName('input')[0];
     var latitude1 = lat1.value;
     var lng1 = <HTMLInputElement>document.getElementById("xfromLng").getElementsByTagName('input')[0];
@@ -134,8 +180,8 @@ export class RcabPage {
 
     //Get the distance btw the two addresses geometry is used an was require through googlemap api.
     var distance = google.maps.geometry.spherical.computeDistanceBetween(
-      new google.maps.LatLng(latitude1,longitude1),
-      new google.maps.LatLng(latitude2,longitude2)
+      new google.maps.LatLng(latitude1, longitude1),
+      new google.maps.LatLng(latitude2, longitude2)
     );
 
     //save distance in hidden field
@@ -155,9 +201,8 @@ export class RcabPage {
     var uprice = this.gtidata[vTypex];
     this.price = dist*uprice;
     var narator = <HTMLInputElement>document.getElementById("narate").getElementsByTagName('input')[0];
-    narator.value += ", \nis "+dist+"Km, for "+vTypex+" Drive. @ NGN "+uprice.toLocaleString('en')+" per kilometer,\nCost NGN "+this.price.toLocaleString('en');
+    narator.value += " is "+dist+"Km, for "+vTypex+" Drive. @ NGN "+uprice.toLocaleString('en')+" per kilometer,\nCost NGN "+this.price.toLocaleString('en');
     var quote = narator.value;
-    this.divElement.nativeElement.innerText = " ";
     this.showQuote(quote);
   }
 
@@ -170,19 +215,31 @@ export class RcabPage {
     tve.value = selectedVal;
   }
 
-
   placeorder(){
+    this.showloader();
     if(confirm("Are you sure? The sum of NGN "+this.price+" will be charged to your debit card.") == true){
-      alert("You have been charged.");
+      this.showAlert("Charged!","You have been charged.");
       var ifrom = <HTMLInputElement>document.getElementById('xfrom').getElementsByTagName('input')[0];
       var from = ifrom.value;
       var ito = <HTMLInputElement>document.getElementById('xto').getElementsByTagName('input')[0];
       var to = ito.value;
+      //this.rform.reset;
+      this.remoteService.setFrom(from);
+      this.remoteService.setTo(to);
       this.closemodal();
     }
-    this.xhome.calculateroute(from,to);
   }
 
+  checkaigree(mod){
+    this.getLatLng('xfrom'); //get the latitude & Longitude for A
+    this.getLatLng('xto');   //get the latitude & Longitude for B
+    if(mod == false){
+      this.imode = false;
+      this.showAlert("Attention Please!","You must agree to GTI Logistics terms and conditions. ");
+    }else{
+      this.imode = true;
+    }
+  }
 
   closemodal(){
     this.view.dismiss();

@@ -14,6 +14,7 @@
 
 
 <ion-content padding>
+  <form #frmRcab id="frmRcab">
   <ion-list>
     <ion-input type="hidden" id="xfromLat"></ion-input>
     <ion-input type="hidden" id="xfromLng"></ion-input>
@@ -26,7 +27,7 @@
 
     <ion-item>
       <ion-label floating>Select Cab Category(Type)</ion-label>
-        <ion-select #sltVehicleType (ionChange)="doVehicleSelect(VehicleType)" [(ngModel)]="VehicleType">
+        <ion-select #sltVehicleType id="sltVehicleType" name="sltVehicleType" (ionChange)="doVehicleSelect(VehicleType)" [(ngModel)]="VehicleType">
           <ion-option value="diamond">Diamond Drive</ion-option>
           <ion-option value="sapphire">Sapphire Drive</ion-option>
           <ion-option value="platinum">Platinum Drive</ion-option>
@@ -45,11 +46,11 @@
     </ion-item>
     <ion-item>
       <ion-label floating>Where are you heading to?</ion-label>
-      <ion-input (ionFocus)="getLatLng('xfrom')" id="xto" type="text" ></ion-input>
+      <ion-input id="xto" type="text" ></ion-input>
     </ion-item>
     <ion-item>
-      <ion-label floating>Any additional information?</ion-label>
-      <ion-textarea #xinfo id="xinfo" name="xinfo" (ionFocus)="getLatLng('xto')"></ion-textarea>
+      <ion-checkbox #iagree id="iagree" name="iagree" (ionChange)="checkaigree(chkiagreee)" [(ngModel)]="chkiagreee" ></ion-checkbox>
+      <ion-label class="wordwrap">I agree to the terms and conditions of GTI Logistics</ion-label>
     </ion-item>
     <ion-item>
       <ion-buttons end>
@@ -57,7 +58,7 @@
       </ion-buttons>
     </ion-item>
     <ion-item>
-      <div #quote id="quote">
+      <div #quote id="quote" class="wordwrap" padding>
         Your Quote will display here.
       </div>
     </ion-item>
@@ -68,4 +69,5 @@
       </ion-buttons>
     </ion-item>
   </ion-list>
+  </form>
 </ion-content>

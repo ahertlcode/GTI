@@ -1,7 +1,8 @@
 import { Component, ViewChild, ElementRef, Injectable } from '@angular/core';
-import { NavController, ModalController, ModalOptions, Events } from 'ionic-angular';
+import { NavController, ModalController, ModalOptions, Events, Platform, LoadingController, AlertController } from 'ionic-angular';
 import { Geolocation } from '@ionic-native/geolocation';
 import { googlemaps } from 'googlemaps';
+import { RemoteServiceProvider } from "../../providers/remote-service/remote-service";
 
 
 declare var google;
@@ -14,19 +15,42 @@ declare var google;
 export class HomePage {
   @ViewChild('map') mapElement: ElementRef;
   map: any;
-  autocompleteItems: any;
-  autocomplete: any;
-  acService:any;
-  placesService: any;
   infoWindow: any;
+  to: string;
+  from: string;
 
 
-  constructor(public navCtrl: NavController, public events: Events, public geolocation: Geolocation, private xmodal: ModalController) {
+  constructor(public navCtrl: NavController, public alertMe: AlertController, private dload: LoadingController, private platfm: Platform, public events: Events, private remoteserve: RemoteServiceProvider, public geolocation: Geolocation, private xmodal: ModalController) {
 
+  }
+
+  showAlert(title,msg){
+    let msgbox = this.alertMe.create({
+
+    });
+  }
+
+  showloading(){
+    let lwait = this.dload.create({
+      content: "Please wait ...",
+      duration: 5000
+    });
+    lwait.present();
+  }
+
+  exitAppl(){
+    this.platfm.exitApp();
   }
 
   openrcabmodal(){
     const modalr = this.xmodal.create("RcabPage");
+    modalr.onDidDismiss(()=>{
+      this.from = this.remoteserve.getFrom();
+      this.to = this.remoteserve.getTo();
+      this.calculateroute(this.from,this.to);
+      this.showloading();
+      //setTimeout(this.calculateroute(this.from,this.to),1000);
+    });
     modalr.present();
   }
 
@@ -45,6 +69,7 @@ export class HomePage {
   }
 
   ionViewDidLoad(){
+    this.showloading();
     this.loadMap();
   }
 
@@ -68,7 +93,6 @@ export class HomePage {
 
   }
   addMarker(){
-
     let marker = new google.maps.Marker({
       map: this.map,
       animation: google.maps.Animation.DROP,
@@ -82,16 +106,17 @@ export class HomePage {
   }
   addInfoWindow(marker, content){
 
-    let infoWindow = new google.maps.InfoWindow({
+    this.infoWindow = new google.maps.InfoWindow({
       content: content
     });
 
     google.maps.event.addListener(marker, 'click', () => {
-      infoWindow.open(this.map, marker);
+      this.infoWindow.open(this.map, marker);
     });
   }
 
   calculateroute(from, to){
+    this.showloading();
     //Center initialized as your current location
     var mapopt = {
       zoom: 10,
@@ -100,7 +125,7 @@ export class HomePage {
     };
 
     //Draw the map
-    var mapObj = new google.maps.map( this.mapElement.nativeElement,mapopt);
+    var mapObj = new google.maps.Map( this.mapElement.nativeElement,mapopt);
 
     var directionsService = new google.maps.DirectionsService();
     var directionsRequest = {

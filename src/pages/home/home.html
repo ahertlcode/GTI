@@ -5,7 +5,7 @@
     </button>
     <ion-title>GTI</ion-title>
     <ion-buttons end>
-      <button ion-button (click)="addMarker()"><ion-icon name="add"></ion-icon>Your Location</button>
+      <button ion-button (click)="exitAppl()">[<ion-icon name="close"></ion-icon>] CLOSE</button>
     </ion-buttons>
   </ion-navbar>
 </ion-header>
@@ -14,7 +14,7 @@
     <ion-item>
       <ion-buttons>
         <button (click)="openrcabmodal()">Request A Cab</button>
-        <button (click)="openschelmodal()">Schedule A Trip</button>
+        <!--<button (click)="openschelmodal()">Schedule A Trip</button>-->
       </ion-buttons>
     </ion-item>
   <div #map id="map"></div>
