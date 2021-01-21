@@ -2,7 +2,7 @@ import { Component, ViewChild, ElementRef } from '@angular/core';
 import { IonicPage, NavController, NavParams, ViewController, Events, AlertController, LoadingController } from 'ionic-angular';
 import { Geolocation } from '@ionic-native/geolocation';
 
-import { googlemaps } from 'googlemaps';
+//import { googlemaps } from 'googlemaps';
 
 import {RemoteServiceProvider} from "../../providers/remote-service/remote-service";
 

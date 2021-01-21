@@ -1,7 +1,7 @@
 import { Component, ViewChild, ElementRef, Injectable } from '@angular/core';
 import { NavController, ModalController, ModalOptions, Events, Platform, LoadingController, AlertController } from 'ionic-angular';
 import { Geolocation } from '@ionic-native/geolocation';
-import { googlemaps } from 'googlemaps';
+//import { googlemaps } from 'googlemaps';
 import { RemoteServiceProvider } from "../../providers/remote-service/remote-service";
 
 
